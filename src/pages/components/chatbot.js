@@ -139,7 +139,6 @@ const Chatbot = () => {
       { text: botResponse, sender: "bot", time: botTimestamp, subData: "" }, // Corrected sender to 'bot'
     ]);
 
-    // Accordion messages for bot with subData
     const accordionMessages = [
       {
         subData: "Men's Fashions",
