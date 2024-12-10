@@ -1,209 +1,170 @@
 (function () {
-  // Configuration
-  const API_ENDPOINT =
-    "http://ec2-54-235-174-119.compute-1.amazonaws.com:5436/chat";
-
-  // Create chatbot button
-  const openChatbotButton = document.createElement("button");
-  openChatbotButton.innerHTML = "Chat with us!";
-  openChatbotButton.style.cssText = `
-    padding: 10px 20px;
-    background: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
-    color: white;
-    border: none;
-    border-radius: 25px;
-    cursor: pointer;
-    position: fixed;
-    bottom: 20px;
-    left: 20px;
-    z-index: 1000;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    transition: transform 0.3s ease;
-  `;
-  openChatbotButton.onclick = toggleChatbot;
-
-  // Hover effect
-  openChatbotButton.addEventListener("mouseenter", () => {
-    openChatbotButton.style.transform = "scale(1.05)";
-  });
-  openChatbotButton.addEventListener("mouseleave", () => {
-    openChatbotButton.style.transform = "scale(1)";
-  });
-
-  // Create the chatbot window
-  const chatbotWindow = document.createElement("div");
-  chatbotWindow.id = "chatbotWindow";
-  chatbotWindow.style.cssText = `
-    display: none;
-    position: fixed;
-    bottom: 70px;
-    left: 20px;
-    width: 350px;
-    height: 500px;
-    background-color: white;
-    border-radius: 15px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-    z-index: 1000;
-    font-family: Arial, sans-serif;
-    display: flex;
-    flex-direction: column;
-  `;
-
-  // Create chatbot header
-  const chatbotHeader = document.createElement("div");
-  chatbotHeader.style.cssText = `
-    background: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
-    color: white;
-    padding: 15px;
-    border-top-left-radius: 15px;
-    border-top-right-radius: 15px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  `;
-  chatbotHeader.innerHTML = `
-    <span>Lumi Chat</span>
-    <span id="closeButton" style="cursor: pointer; font-size: 24px;">&times;</span>
-  `;
-
-  // Create message container
-  const chatbotMessages = document.createElement("div");
-  chatbotMessages.id = "chatbotMessages";
-  chatbotMessages.style.cssText = `
-    flex-grow: 1;
-    overflow-y: auto;
-    padding: 15px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  `;
-
-  // Create input container
-  const inputContainer = document.createElement("div");
-  inputContainer.style.cssText = `
-    display: flex;
-    padding: 10px;
-    border-top: 1px solid #eee;
-    align-items: center;
-  `;
-
-  // Create chatbot input
-  const chatbotInput = document.createElement("input");
-  chatbotInput.type = "text";
-  chatbotInput.placeholder = "Type a message...";
-  chatbotInput.style.cssText = `
-    flex-grow: 1;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 20px;
-    margin-right: 10px;
-  `;
-
-  // Create send button with SVG icon
-  const sendButton = document.createElement("button");
-  sendButton.innerHTML = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <line x1="22" y1="2" x2="11" y2="13"></line>
-      <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-    </svg>
-  `;
-  sendButton.style.cssText = `
-    background: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    padding: 0;
-  `;
-
-  // Append elements
-  inputContainer.appendChild(chatbotInput);
-  inputContainer.appendChild(sendButton);
-  chatbotWindow.appendChild(chatbotHeader);
-  chatbotWindow.appendChild(chatbotMessages);
-  chatbotWindow.appendChild(inputContainer);
-
-  // Add to body
-  document.body.appendChild(openChatbotButton);
-  document.body.appendChild(chatbotWindow);
-
-  // Get elements
-  const closeButton = document.getElementById("closeButton");
-  const messagesContainer = document.getElementById("chatbotMessages");
-
-  // Toggle chatbot visibility
-  function toggleChatbot() {
-    chatbotWindow.style.display =
-      chatbotWindow.style.display === "none" ? "flex" : "none";
+  // Utility function to create elements with classes and attributes
+  function createElement(tag, options = {}) {
+    const element = document.createElement(tag);
+    if (options.classes) element.className = options.classes;
+    if (options.text) element.textContent = options.text;
+    if (options.src) element.src = options.src;
+    if (options.alt) element.alt = options.alt;
+    if (options.appendTo) options.appendTo.appendChild(element);
+    return element;
   }
 
-  // Close button event
-  closeButton.onclick = toggleChatbot;
+  // Chatbot component
+  const chatbot = () => {
+    let messages = JSON.parse(localStorage.getItem("chatMessages")) || [];
+    let input = "";
+    let isOpen = false;
+    let loading = false;
+    let selectedOffer = null;
 
-  // Add message to chat
-  function addMessage(text, sender = "bot") {
-    const messageElement = document.createElement("div");
-    messageElement.style.cssText = `
-      max-width: 80%;
-      padding: 10px 15px;
-      border-radius: 15px;
-      align-self: ${sender === "user" ? "flex-end" : "flex-start"};
-      background: ${
-        sender === "user"
-          ? "linear-gradient(to right, #6a11cb 0%, #2575fc 100%)"
-          : "#f0f0f0"
-      };
-      color: ${sender === "user" ? "white" : "black"};
-    `;
-    messageElement.textContent = text;
-    messagesContainer.appendChild(messageElement);
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-  }
+    // Create elements
+    const chatbotContainer = createElement("div", { classes: "relative" });
+    const chatBox = createElement("div", {
+      classes:
+        "fixed bottom-0 left-0 z-[9999] mb-0 h-screen w-full max-w-md rounded-2xl border border-gray-300 bg-white bg-opacity-30 shadow-lg backdrop-blur-lg hidden",
+    }); // initially hidden
+    const tabGroup = createElement("div", { classes: "TabGroup" });
+    const tabList = createElement("div", { classes: "TabList" });
+    const messagesContainer = createElement("div", {
+      classes: "chat-messages",
+    });
+    const inputField = createElement("input", {
+      classes: "chat-input",
+      type: "text",
+    });
+    const sendButton = createElement("button", {
+      classes: "send-button",
+      text: "Send",
+    });
 
-  // Send message function
-  async function sendMessage() {
-    const message = chatbotInput.value.trim();
-    if (!message) return;
+    const closeButton = createElement("button", {
+      classes: "absolute right-6 top-3 text-2xl text-white",
+      text: "×",
+    });
+    const chatIconButton = createElement("button", {
+      classes:
+        "fixed bottom-4 left-4 z-[9999] p-2 bg-blue-500 text-white rounded-full",
+    });
 
-    // Add user message
-    addMessage(message, "user");
-    chatbotInput.value = "";
+    chatIconButton.innerHTML = '<i class="text-3xl"><MdChat /></i>'; // Chat icon button
+    closeButton.addEventListener("click", () => setIsOpen(false));
 
-    try {
-      // Send to API
-      const response = await fetch(API_ENDPOINT, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ message }),
+    sendButton.addEventListener("click", () => handleSend(input));
+    inputField.addEventListener("input", (e) => {
+      input = e.target.value;
+    });
+
+    // Open/close chatbot
+    chatIconButton.addEventListener("click", () => {
+      setIsOpen(!isOpen);
+    });
+
+    const setIsOpen = (open) => {
+      isOpen = open;
+      chatBox.classList.toggle("hidden", !isOpen); // Show/hide the chat box
+    };
+
+    const handleSend = async (message) => {
+      const finalMessage = message || input;
+
+      if (finalMessage.trim() === "") return;
+
+      const timestamp = new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
       });
 
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
+      // Add user's message
+      messages.push({
+        text: finalMessage,
+        sender: "user",
+        subData: "",
+        time: timestamp,
+      });
+
+      localStorage.setItem("chatMessages", JSON.stringify(messages));
+      input = ""; // Clear input
+
+      loading = true;
+
+      try {
+        const response = await fetch(
+          "http://ec2-54-235-174-119.compute-1.amazonaws.com:5436/chat",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ message: finalMessage }),
+          }
+        );
+
+        if (response.ok) {
+          const botResponse = await response.json();
+          const botTimestamp = new Date().toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+
+          // Add bot's response
+          messages.push({
+            text: botResponse,
+            sender: "bot",
+            subData: "",
+            time: botTimestamp,
+          });
+        } else {
+          throw new Error("Unexpected response structure");
+        }
+      } catch (error) {
+        console.error(error, "error from chatbot");
+        messages.push({
+          text: "Error: Could not get a response from the bot. Please try again later.",
+          sender: "bot",
+          subData: "",
+          time: new Date().toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+        });
+      } finally {
+        loading = false;
+        localStorage.setItem("chatMessages", JSON.stringify(messages));
+        updateMessages();
       }
+    };
 
-      const data = await response.json();
+    const updateMessages = () => {
+      messagesContainer.innerHTML = "";
+      messages.forEach((msg) => {
+        const messageDiv = createElement("div", {
+          classes: `chat-message ${
+            msg.sender === "user" ? "self-end" : "self-start"
+          }`,
+        });
+        const messageContent = createElement("div", {
+          classes: "message-content",
+          text: msg.text,
+        });
+        messageDiv.appendChild(messageContent);
+        messagesContainer.appendChild(messageDiv);
+      });
+    };
 
-      // Add bot response
-      addMessage(data);
-    } catch (error) {
-      console.error("Error:", error);
-      addMessage("Sorry, there was an error processing your request.");
-    }
-  }
+    chatbotContainer.appendChild(tabGroup);
+    tabGroup.appendChild(tabList);
+    tabGroup.appendChild(messagesContainer);
+    tabGroup.appendChild(inputField);
+    tabGroup.appendChild(sendButton);
 
-  // Event listeners
-  sendButton.onclick = sendMessage;
-  chatbotInput.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") sendMessage();
-  });
+    // Insert chatbot and chat icon button into the body
+    document.body.appendChild(chatbotContainer);
+    document.body.appendChild(chatIconButton);
 
-  // Initial welcome message
-  addMessage("Hello! How can I help you today?");
+    // Initialize by rendering messages
+    updateMessages();
+  };
+
+  chatbot(); // Invoke the chatbot immediately
 })();
