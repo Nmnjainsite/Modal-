@@ -4,9 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "build": "webpack"
+    "lint": "next lint"
   },
   "dependencies": {
     "axios": "^1.7.9",
@@ -19,10 +19,6 @@
     "rizzui": "^0.8.7"
   },
   "devDependencies": {
-    "@babel/core": "^7.26.0",
-    "@babel/preset-env": "^7.26.0",
-    "@babel/preset-react": "^7.26.3",
-    "babel-loader": "^9.2.1",
     "eslint": "^8",
     "eslint-config-next": "15.0.4",
     "postcss": "^8",
@@ -31,5 +27,4 @@
     "webpack": "^5.97.1",
     "webpack-cli": "^5.1.4"
   }
-  
 }
