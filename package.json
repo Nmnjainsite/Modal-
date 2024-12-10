@@ -19,6 +19,7 @@
     "rizzui": "^0.8.7"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.26.0",
     "eslint": "^8",
     "eslint-config-next": "15.0.4",
     "postcss": "^8",
