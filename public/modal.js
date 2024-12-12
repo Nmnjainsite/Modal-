@@ -8,11 +8,10 @@
   // Set iframe attributes
   iframe.src = iframeUrl;
   iframe.style.cssText = `
-    width: 400px; /* Fixed width */
-    height: 600px; /* Fixed height */
+    width: 400px;
     border: none;
     position: fixed;
-    bottom: 0;
+    bottom: 10px; /* 10px space from the bottom */
     right: 0; /* Align to the bottom-right corner */
     z-index: 99999;
     pointer-events: auto;
