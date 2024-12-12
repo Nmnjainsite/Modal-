@@ -187,7 +187,7 @@ const Chatbot = () => {
                     />
 
                     <span className="flex flex-col items-start justify-center px-2">
-                      <span className="text-[0.9rem]">Lumi</span>
+                      <span className="text-[0.9rem]">AI Chatbot</span>
                       <span className="text-[0.7rem] font-normal">
                         You can ask me anything.
                       </span>
