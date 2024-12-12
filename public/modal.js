@@ -1,215 +1,198 @@
 (function () {
-  let messages = JSON.parse(localStorage.getItem("chatMessages")) || [];
-  let input = "";
-  let isOpen = false;
-  let products = [];
-  let selectedOffer = null;
-  let loading = false;
+  // Configuration
+  const API_ENDPOINT =
+    "http://ec2-54-235-174-119.compute-1.amazonaws.com:5436/chat";
 
-  function updateLocalStorage() {
-    localStorage.setItem("chatMessages", JSON.stringify(messages));
+  // Create chatbot button
+  const openChatbotButton = document.createElement("button");
+  openChatbotButton.innerHTML = "Chat with us!";
+  openChatbotButton.style.cssText = `
+    padding: 10px 20px;
+    background: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 1000;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+  `;
+  openChatbotButton.onclick = toggleChatbot;
+
+  // Hover effect
+  openChatbotButton.addEventListener("mouseenter", () => {
+    openChatbotButton.style.transform = "scale(1.05)";
+  });
+  openChatbotButton.addEventListener("mouseleave", () => {
+    openChatbotButton.style.transform = "scale(1)";
+  });
+
+  // Create the chatbot window
+  const chatbotWindow = document.createElement("div");
+  chatbotWindow.id = "chatbotWindow";
+  chatbotWindow.style.cssText = `
+    display: none;
+    position: fixed;
+    bottom: 70px;
+    left: 20px;
+    width: 350px;
+    height: 500px;
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    z-index: 1000;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+  `;
+
+  // Create chatbot header
+  const chatbotHeader = document.createElement("div");
+  chatbotHeader.style.cssText = `
+    background: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
+    color: white;
+    padding: 15px;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  `;
+  chatbotHeader.innerHTML = `
+    <span>Lumi Chat</span>
+    <span id="closeButton" style="cursor: pointer; font-size: 24px;">&times;</span>
+  `;
+
+  // Create message container
+  const chatbotMessages = document.createElement("div");
+  chatbotMessages.id = "chatbotMessages";
+  chatbotMessages.style.cssText = `
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  `;
+
+  // Create input container
+  const inputContainer = document.createElement("div");
+  inputContainer.style.cssText = `
+    display: flex;
+    padding: 10px;
+    border-top: 1px solid #eee;
+  `;
+
+  // Create chatbot input
+  const chatbotInput = document.createElement("input");
+  chatbotInput.type = "text";
+  chatbotInput.placeholder = "Type a message...";
+  chatbotInput.style.cssText = `
+    flex-grow: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    margin-right: 10px;
+  `;
+
+  // Create send button
+  const sendButton = document.createElement("button");
+  sendButton.innerHTML = "Send";
+  sendButton.style.cssText = `
+    background: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 20px;
+    cursor: pointer;
+  `;
+
+  // Append elements
+  inputContainer.appendChild(chatbotInput);
+  inputContainer.appendChild(sendButton);
+  chatbotWindow.appendChild(chatbotHeader);
+  chatbotWindow.appendChild(chatbotMessages);
+  chatbotWindow.appendChild(inputContainer);
+
+  // Add to body
+  document.body.appendChild(openChatbotButton);
+  document.body.appendChild(chatbotWindow);
+
+  // Get elements
+  const closeButton = document.getElementById("closeButton");
+  const messagesContainer = document.getElementById("chatbotMessages");
+
+  // Toggle chatbot visibility
+  function toggleChatbot() {
+    chatbotWindow.style.display =
+      chatbotWindow.style.display === "none" ? "flex" : "none";
   }
 
-  async function handleSend(message) {
-    const finalMessage = message || input;
+  // Close button event
+  closeButton.onclick = toggleChatbot;
 
-    if (finalMessage.trim() === "") return;
+  // Add message to chat
+  function addMessage(text, sender = "bot") {
+    const messageElement = document.createElement("div");
+    messageElement.style.cssText = `
+      max-width: 80%;
+      padding: 10px 15px;
+      border-radius: 15px;
+      align-self: ${sender === "user" ? "flex-end" : "flex-start"};
+      background-color: ${
+        sender === "user"
+          ? "linear-gradient(to right, #6a11cb 0%, #2575fc 100%)"
+          : "#f0f0f0"
+      };
+      color: ${sender === "user" ? "white" : "black"};
+    `;
+    messageElement.textContent = text;
+    messagesContainer.appendChild(messageElement);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }
 
-    const timestamp = new Date().toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+  // Send message function
+  async function sendMessage() {
+    const message = chatbotInput.value.trim();
+    if (!message) return;
 
-    // Add the user's message
-    messages.push({
-      text: finalMessage,
-      sender: "user",
-      subData: "",
-      time: timestamp,
-    });
-    input = ""; // Clear input
-    loading = true; // Set loading to true
-    updateLocalStorage();
+    // Add user message
+    addMessage(message, "user");
+    chatbotInput.value = "";
 
     try {
-      const response = await fetch(
-        "http://ec2-54-235-174-119.compute-1.amazonaws.com:5436/chat",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ message: finalMessage }),
-        }
-      );
+      // Send to API
+      const response = await fetch(API_ENDPOINT, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
 
       const data = await response.json();
 
-      if (response.status === 200 && data) {
-        const botResponse = data;
-        const botTimestamp = new Date().toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        });
-
-        messages.push({
-          text: botResponse,
-          sender: "bot",
-          subData: "",
-          time: botTimestamp,
-        });
-        updateLocalStorage();
-      } else {
-        throw new Error("Unexpected response structure");
-      }
+      // Add bot response
+      addMessage(data);
     } catch (error) {
-      console.error(error, "error from chatbot");
-
-      messages.push({
-        text: "Error: Could not get a response from the bot. Please try again later.",
-        sender: "bot",
-        subData: "",
-        time: new Date().toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-      });
-      updateLocalStorage();
-    } finally {
-      loading = false; // Reset loading state
+      console.error("Error:", error);
+      addMessage("Sorry, there was an error processing your request.");
     }
   }
 
-  function handleKeyDown(e) {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSend(input);
-    }
-  }
+  // Event listeners
+  sendButton.onclick = sendMessage;
+  chatbotInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") sendMessage();
+  });
 
-  function handleOffer(offerType) {
-    const offerTimestamp = new Date().toLocaleTimeString();
-
-    // Add user message with subData
-    messages.push({
-      text: offerType,
-      sender: "user",
-      time: offerTimestamp,
-      subData: "",
-    });
-
-    const botResponse = "Sure, what are you interested in?";
-    const botTimestamp = new Date().toLocaleTimeString();
-
-    messages.push({
-      text: botResponse,
-      sender: "bot",
-      time: botTimestamp,
-      subData: "",
-    });
-
-    const accordionMessages = [
-      {
-        subData: "Men's Fashions",
-        sender: "bot",
-        time: botTimestamp,
-        text: "",
-      },
-      {
-        subData: "Women's Special Fashions",
-        sender: "bot",
-        time: botTimestamp,
-        text: "",
-      },
-      {
-        subData: "Summer Special",
-        sender: "bot",
-        time: botTimestamp,
-        text: "",
-      },
-    ];
-
-    messages.push(...accordionMessages);
-    selectedOffer = offerType;
-    updateLocalStorage();
-  }
-
-  // Example of setting input and triggering keydown (replace this with actual DOM event logic)
-  document.addEventListener("keydown", handleKeyDown);
-
-  // Framer Motion integration
-  import("https://cdn.jsdelivr.net/npm/framer-motion@11.13.5/+esm").then(
-    (framerMotion) => {
-      const { motion, AnimatePresence } = framerMotion;
-
-      let isOpen = true;
-
-      // Create the main container div
-      const container = document.createElement("div");
-      container.style.position = "relative";
-      document.body.appendChild(container);
-
-      // Function to create the motion div element
-      const createMotionDiv = () => {
-        if (isOpen) {
-          // AnimatePresence logic for opening
-          const motionDiv = document.createElement("div");
-          motionDiv.style.position = "fixed";
-          motionDiv.style.bottom = "0";
-          motionDiv.style.right = "0";
-          motionDiv.style.zIndex = "9999";
-          motionDiv.style.height = "100vh";
-          motionDiv.style.width = "100%";
-          motionDiv.style.background = "rgba(255, 255, 255, 0.3)";
-          motionDiv.style.backdropFilter = "blur(10px)";
-          motionDiv.style.borderRadius = "16px";
-          motionDiv.style.transition = "all 0.4s ease";
-          motionDiv.style.opacity = "0";
-          motionDiv.style.transform = "translateY(50px)";
-
-          container.appendChild(motionDiv);
-
-          // Animate in
-          requestAnimationFrame(() => {
-            motionDiv.style.opacity = "1";
-            motionDiv.style.transform = "translateY(0)";
-          });
-
-          // Add content inside the motion div (example content)
-          const content = document.createElement("div");
-          content.style.padding = "20px";
-          content.style.background = "white";
-          content.style.borderRadius = "10px";
-          content.innerText = "This is a motion div using Framer Motion!";
-          motionDiv.appendChild(content);
-
-          // Add close button
-          const closeButton = document.createElement("button");
-          closeButton.innerText = "Close";
-          closeButton.style.position = "absolute";
-          closeButton.style.top = "10px";
-          closeButton.style.right = "10px";
-          closeButton.style.background = "red";
-          closeButton.style.color = "white";
-          closeButton.style.border = "none";
-          closeButton.style.padding = "10px";
-          closeButton.style.cursor = "pointer";
-          motionDiv.appendChild(closeButton);
-
-          closeButton.addEventListener("click", () => {
-            // Animate out
-            motionDiv.style.opacity = "0";
-            motionDiv.style.transform = "translateY(50px)";
-            setTimeout(() => {
-              container.removeChild(motionDiv);
-              isOpen = false;
-            }, 400);
-          });
-        }
-      };
-
-      // Open the motion div
-      createMotionDiv();
-    }
-  );
+  // Initial welcome message
+  addMessage("Hello! How can I help you today?");
 })();
