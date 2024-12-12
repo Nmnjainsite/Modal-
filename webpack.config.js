@@ -1,49 +1,31 @@
-// const path = require("path");
-
-// module.exports = {
-//   mode: "production",
-//   entry: "./src/pages/components/chatbot.js", // Adjusted to the correct relative path
-//   output: {
-//     path: path.resolve(__dirname, "public"), // Output directory
-//     filename: "chatbot.bundle.js", // Output file name
-//   },
-//   module: {
-//     rules: [
-//       {
-//         test: /\.(js|jsx)$/, // Match .js and .jsx files
-//         exclude: /node_modules/, // Exclude the node_modules directory
-//         use: {
-//           loader: "babel-loader", // Use Babel to transpile JS/JSX files
-//         },
-//       },
-//     ],
-//   },
-//   resolve: {
-//     extensions: [".js", ".jsx"], // Automatically resolve these extensions
-//   },
-// };
-
 const path = require("path");
+const webpack = require("webpack");
+const nodeExternals = require("webpack-node-externals"); // Add this import
 
 module.exports = {
-  entry: "./src/pages/components/chatbot.js",
+  entry: "./src/pages/index.js", // Entry point of your Next.js app
   output: {
-    filename: "shopify.js",
-    path: path.resolve(__dirname, "dist"),
+    path: path.resolve(__dirname, "dist"), // The output folder for the bundled file
+    filename: "chatbot.js", // The output filename
+    library: "Chatbot", // The global variable under which the app will be exposed
+    libraryTarget: "umd", // Makes it available to other systems (like Shopify)
   },
-  mode: "production",
+  resolve: {
+    extensions: [".js", ".jsx"],
+  },
   module: {
     rules: [
       {
-        test: /\.js$/,
+        test: /\.(js|jsx)$/,
         exclude: /node_modules/,
         use: {
           loader: "babel-loader",
+          options: {
+            presets: ["@babel/preset-env", "@babel/preset-react"],
+          },
         },
       },
     ],
   },
-  resolve: {
-    extensions: [".js", ".jsx"], // Automatically resolve these extensions
-  },
+  externals: [nodeExternals()], // Exclude dependencies from the bundle
 };

@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "build:chatbot": "webpack --config webpack.config.js"
   },
   "dependencies": {
     "axios": "^1.7.9",
@@ -20,6 +21,7 @@
   },
   "devDependencies": {
     "@babel/preset-env": "^7.26.0",
+    "@babel/preset-react": "^7.26.3",
     "babel-loader": "^9.2.1",
     "eslint": "^8",
     "eslint-config-next": "15.0.4",
@@ -27,6 +29,7 @@
     "tailwindcss": "^3.4.1",
     "terser-webpack-plugin": "^5.3.10",
     "webpack": "^5.97.1",
-    "webpack-cli": "^5.1.4"
+    "webpack-cli": "^5.1.4",
+    "webpack-node-externals": "^3.0.0"
   }
 }
