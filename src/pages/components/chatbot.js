@@ -174,7 +174,7 @@ const Chatbot = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 50 }}
             transition={{ duration: 0.4 }}
-            className="fixed bottom-0 right-0 z-[9999] mb-0 h-screen w-full rounded-2xl border border-gray-300 bg-white bg-opacity-30 shadow-lg backdrop-blur-lg @2xl:bottom-16 @2xl:right-8 @2xl:mb-96 @2xl:w-96 sm:bottom-16 sm:right-8 sm:mb-96 sm:h-[180px] sm:w-96"
+            className="fixed bottom-0 right-0 z-[9999] mb-0 h-screen w-full rounded-2xl @2xl:bottom-16 @2xl:right-8 @2xl:mb-96 @2xl:w-96 sm:bottom-16 sm:right-8 sm:mb-96 sm:h-[180px] sm:w-96"
           >
             <TabGroup>
               <TabList className="relative flex items-start rounded-t-2xl bg-gradient-to-r from-violet-600 to-indigo-600 py-1">
@@ -214,7 +214,7 @@ const Chatbot = () => {
                     exit={{ opacity: 0, y: 50 }}
                     transition={{ duration: 0.4 }}
                   >
-                    <div className="flex h-screen flex-col rounded-md sm:h-[450px]">
+                    <div className="flex flex-col rounded-md h-[450px]">
                       <div className="flex flex-1 flex-col space-y-2 overflow-y-auto p-3">
                         <div
                           className={`chat-message flex max-w-xs items-end gap-2 self-start rounded-lg`}

@@ -8,14 +8,14 @@
   // Set iframe attributes
   iframe.src = iframeUrl;
   iframe.style.cssText = `
-    width: 400px; /* Fixed width */
-    height:600px; /* Fixed height */
-    border: none;
-    position: fixed;
-    bottom: 0; /* 10px space from the bottom */
-    right: 10px; /* Align to the bottom-right corner */
-    z-index: 99999;
-    pointer-events: auto;
+      width: 400px; /* Fixed width */
+      height: 550px; /* Fixed height */
+      border: none;
+      position: fixed;
+      bottom: 0; /* 10px space from the bottom */
+      right: 10px; /* Align to the bottom-right corner */
+      z-index: 99999;
+      pointer-events: auto;
   `;
 
   // Append the iframe to the body
