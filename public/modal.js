@@ -12,7 +12,7 @@
     height: 400px; /* Fixed height */
     border: none;
     position: fixed;
-    bottom: 10px; /* 10px space from the bottom */
+    bottom: 0; /* 10px space from the bottom */
     right: 10px; /* Align to the bottom-right corner */
     z-index: 99999;
     pointer-events: auto;
