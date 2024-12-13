@@ -9,7 +9,7 @@
   iframe.src = iframeUrl;
   iframe.style.cssText = `
     width: 400px; /* Fixed width */
-    height: 400px; /* Fixed height */
+    height: auto; /* Fixed height */
     border: none;
     position: fixed;
     bottom: 0; /* 10px space from the bottom */
