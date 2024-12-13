@@ -483,7 +483,7 @@ const Chatbot = () => {
       )}
 
       <button
-        className="fixed bottom-10 right-8 rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 p-4 text-white shadow-lg transition-transform hover:scale-105"
+        className="fixed bottom-10 right-8 rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 p-4 text-white shadow-[0px_4px_10px_0px_rgba(255,255,255,0.6)] transition-transform hover:scale-105"
         onClick={() => setIsOpen((prev) => !prev)}
       >
         {isOpen ? (
