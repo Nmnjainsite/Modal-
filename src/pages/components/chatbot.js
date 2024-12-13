@@ -23,7 +23,7 @@ import {
   TabPanels,
 } from "@headlessui/react";
 // import { IoChevronDownCircleOutline, IoSend } from "react-icons/io5";
-// import "./chatbot.css";
+import styles from "./chatbot.module.css";
 import { SiChatbot as ChatSolidIcon } from "react-icons/si";
 
 const accordionVariants = {
@@ -174,7 +174,7 @@ const Chatbot = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 50 }}
             transition={{ duration: 0.4 }}
-            className="fixed bottom-0 right-0 z-[9999] mb-0 h-screen w-full rounded-2xl border border-gray-300 bg-white bg-opacity-30 shadow-lg backdrop-blur-lg @2xl:bottom-16 @2xl:right-8 @2xl:mb-96 @2xl:w-96 sm:bottom-16 sm:right-8 sm:mb-96 sm:h-[180px] sm:w-96"
+            className="fixed bottom-0 right-0 z-[9999] mb-[10rem] h-[70vh] w-full rounded-2xl border border-gray-300 bg-white bg-opacity-30 shadow-lg backdrop-blur-lg @2xl:bottom-16 @2xl:right-8 @2xl:mb-96 @2xl:w-96 sm:bottom-16 sm:right-8 sm:mb-96 sm:h-[180px] sm:w-96"
           >
             <TabGroup>
               <TabList className="relative flex items-start rounded-t-2xl bg-gradient-to-r from-violet-600 to-indigo-600 py-1">
@@ -187,7 +187,7 @@ const Chatbot = () => {
                     />
 
                     <span className="flex flex-col items-start justify-center px-2">
-                      <span className="text-[0.9rem]">AI Chatbot</span>
+                      <span className="text-[0.9rem]">Lumi</span>
                       <span className="text-[0.7rem] font-normal">
                         You can ask me anything.
                       </span>
@@ -204,8 +204,10 @@ const Chatbot = () => {
                 </button>
               </TabList>
 
-              <TabPanels className="gradient-border bg-white border-2 rounded-md">
-                <TabPanel className="gradient-border-1">
+              <TabPanels
+                className={`${styles["gradient-border"]} bg-gradient-to-r from-violet-600 to-indigo-600`}
+              >
+                <TabPanel className={`${styles["gradient-border-1"]}`}>
                   <motion.div
                     initial={{ opacity: 0, y: 50 }}
                     animate={{ opacity: 1, y: 0 }}

@@ -24,17 +24,25 @@ export default function handler(req, res) {
       script.onload = () => {
         reactDomScript.onload = () => {
           const chatbotContainer = document.getElementById("chatbot-container");
+
+          // Here we directly define the Chatbot component using React.createElement
           const ChatbotComponent = ${ReactDOMServer.renderToString(
             <Chatbot />
           )};
+          
+          // Dynamically create the React component
+          const ChatbotElement = React.createElement(() => {
+            return ${ChatbotComponent};
+          });
 
           ReactDOM.render(
-            React.createElement(() => ${ChatbotComponent}),
+            ChatbotElement,
             chatbotContainer
           );
         };
       };
     })();
   `;
+
   res.send(script);
 }
