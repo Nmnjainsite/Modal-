@@ -31,6 +31,16 @@ const accordionVariants = {
   closed: { height: 0, opacity: 0 },
 };
 
+const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
+const token = process.env.NEXT_PUBLIC_API_TOKEN;
+
+const axiosInstance = axios.create({
+  baseURL,
+  headers: {
+    Authorization: `Bearer ${token}`,
+  },
+});
+
 const Chatbot = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -172,14 +182,16 @@ const Chatbot = () => {
     // Fetch the chatbot configuration from the API
     const fetchConfig = async () => {
       try {
-        const response = await fetch("/customize.json");
-        if (!response.ok) {
-          throw new Error("Failed to fetch configuration");
-        }
-        const data = await response.json();
-        setConfig(data);
+        const response = await axiosInstance.get("/api/customize/xIrKTj3ump");
+
+        // Correct way to access the data in axios
+        const data = response.data;
+
+        console.log(data, "data"); // Logging the correct data
+        setConfig(data); // Setting the configuration data
       } catch (err) {
-        setError(err.message);
+        setError(err.message); // Setting the error state if something goes wrong
+        console.error("Error fetching config:", err); // Logging the error
       }
     };
 
@@ -211,7 +223,7 @@ const Chatbot = () => {
               <TabList
                 className="relative flex items-start rounded-t-2xl py-1"
                 style={{
-                  background: config.theme.gradient,
+                  background: config.bgColor,
                   // borderRadius: config.layout.borderRadius,
                   // color: config.theme.textColor,
                   // padding: "10px",
@@ -226,7 +238,9 @@ const Chatbot = () => {
                     />
 
                     <span className="flex flex-col items-start justify-center px-2">
-                      <span className="text-[0.9rem]">{config.title}</span>
+                      <span className="text-[0.9rem]">
+                        {config.chatbotTitle}
+                      </span>
                       <span className="text-[0.7rem] font-normal">
                         You can ask me anything.
                       </span>
