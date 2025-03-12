@@ -165,6 +165,37 @@ const Chatbot = () => {
     setSelectedOffer(offerType);
   };
 
+  const [config, setConfig] = useState(null);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    // Fetch the chatbot configuration from the API
+    const fetchConfig = async () => {
+      try {
+        const response = await fetch("/customize.json");
+        if (!response.ok) {
+          throw new Error("Failed to fetch configuration");
+        }
+        const data = await response.json();
+        setConfig(data);
+      } catch (err) {
+        setError(err.message);
+      }
+    };
+
+    fetchConfig();
+  }, []);
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+
+  if (!config) {
+    return <div>Loading...</div>;
+  }
+
+  console.log(config);
+
   return (
     <div className="relative">
       {isOpen && (
@@ -174,10 +205,18 @@ const Chatbot = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 50 }}
             transition={{ duration: 0.4 }}
-            className="fixed bottom-0 right-0 z-[9999] mb-0 h-screen w-full rounded-2xl @2xl:bottom-16 @2xl:right-8 @2xl:mb-96 @2xl:w-96 sm:bottom-16 sm:right-8 sm:mb-96 sm:h-[180px] sm:w-96"
+            className={`fixed bottom-0 right-0 z-[9999] mb-0 h-screen w-full rounded-2xl @2xl:bottom-16 @2xl:right-8 @2xl:mb-96 @2xl:w-96 sm:bottom-16 sm:right-8 sm:mb-96 sm:h-[180px] sm:w-96`}
           >
             <TabGroup>
-              <TabList className="relative flex items-start rounded-t-2xl bg-gradient-to-r from-violet-600 to-indigo-600 py-1">
+              <TabList
+                className="relative flex items-start rounded-t-2xl py-1"
+                style={{
+                  background: config.theme.gradient,
+                  // borderRadius: config.layout.borderRadius,
+                  // color: config.theme.textColor,
+                  // padding: "10px",
+                }}
+              >
                 <div className="flex flex-col gap-2">
                   <Tab className="flex items-start gap-2 rounded-xl px-6 py-1 font-semibold text-white">
                     <img
@@ -187,7 +226,7 @@ const Chatbot = () => {
                     />
 
                     <span className="flex flex-col items-start justify-center px-2">
-                      <span className="text-[0.9rem]">AI Chatbot</span>
+                      <span className="text-[0.9rem]">{config.title}</span>
                       <span className="text-[0.7rem] font-normal">
                         You can ask me anything.
                       </span>

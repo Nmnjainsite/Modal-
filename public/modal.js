@@ -16,6 +16,7 @@
       right: 10px; /* Align to the bottom-right corner */
       z-index: 99999;
       pointer-events: auto;
+     
   `;
 
   // Append the iframe to the body

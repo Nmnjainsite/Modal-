@@ -1,0 +1,16 @@
+{
+  "theme": {
+    "primaryColor": "#4CAF50",
+    "backgroundColor": "#f4f4f4",
+    "textColor": "#333333"
+  },
+  "font": {
+    "fontSize": "14px",
+    "fontFamily": "Roboto, sans-serif"
+  },
+  "button": {
+    "backgroundColor": "#4CAF50",
+    "borderRadius": "5px",
+    "color": "#ffffff"
+  }
+}
