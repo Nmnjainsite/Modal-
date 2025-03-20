@@ -1,6 +1,6 @@
 (function () {
   // Define the URL of the iframe content, appending the userId as a query parameter
-  const iframeUrl = `https://modal-testing-app.myshopify.com`;
+  const iframeUrl = `https://modal-rho-six.vercel.app`;
 
   // Create the iframe element
   const iframe = document.createElement("iframe");
