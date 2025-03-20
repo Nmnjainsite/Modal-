@@ -181,7 +181,12 @@ const Chatbot = () => {
   } else {
     console.log("Window is not available (SSR environment)");
   }
-
+  const handleKeyDown = () => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend(input);
+    }
+  };
   return (
     <div className="relative">
       {isOpen && (
