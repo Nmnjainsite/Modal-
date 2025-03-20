@@ -74,12 +74,14 @@ const Chatbot = () => {
             ""
           );
 
-          const response = await axios.get(`/api/users/website/${website}`);
+          const response = await axiosInstance.get(
+            `/api/users/website/${website}`
+          );
           const data = response.data;
 
           if (data && data.userId) {
             const userId = data.userId;
-            const customizeResponse = await axios.get(
+            const customizeResponse = await axiosInstance.get(
               `/api/customize/${userId}`
             );
             const customizeData = customizeResponse.data;
@@ -97,32 +99,32 @@ const Chatbot = () => {
   }, []);
 
   // Fetch session token and decode it
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        if (typeof window !== "undefined") {
-          const appBridgeConfig = {
-            apiKey: process.env.NEXT_PUBLIC_SHOPIFY_API_KEY,
-            host: process.env.NEXT_PUBLIC_SHOPIFY_HOST,
-          };
-          const app = createApp(appBridgeConfig);
-          const sessionToken = await getSessionToken(app);
+  // useEffect(() => {
+  //   async function fetchData() {
+  //     try {
+  //       if (typeof window !== "undefined") {
+  //         const appBridgeConfig = {
+  //           apiKey: process.env.NEXT_PUBLIC_SHOPIFY_API_KEY,
+  //           host: process.env.NEXT_PUBLIC_SHOPIFY_HOST,
+  //         };
+  //         const app = createApp(appBridgeConfig);
+  //         const sessionToken = await getSessionToken(app);
 
-          if (typeof sessionToken === "string" && sessionToken !== "") {
-            const decodedToken = jwtDecode(sessionToken);
-            const shopifyUserId = decodedToken.sub;
-            console.log(app, sessionToken, shopifyUserId);
-          } else {
-            console.error("Invalid session token:", sessionToken);
-          }
-        }
-      } catch (error) {
-        console.error("Error decoding session token:", error);
-      }
-    }
+  //         if (typeof sessionToken === "string" && sessionToken !== "") {
+  //           const decodedToken = jwtDecode(sessionToken);
+  //           const shopifyUserId = decodedToken.sub;
+  //           console.log(app, sessionToken, shopifyUserId);
+  //         } else {
+  //           console.error("Invalid session token:", sessionToken);
+  //         }
+  //       }
+  //     } catch (error) {
+  //       console.error("Error decoding session token:", error);
+  //     }
+  //   }
 
-    fetchData();
-  }, []);
+  //   fetchData();
+  // }, []);
 
   const handleSend = async (message) => {
     const finalMessage = message || input;
