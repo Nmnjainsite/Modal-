@@ -42,11 +42,12 @@ const axiosInstance = axios.create({
 });
 
 const Chatbot = () => {
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState({});
+
   const [input, setInput] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [products, setProducts] = useState([]); // State for products
-  const [selectedOffer, setSelectedOffer] = useState(null);
+  const [selectedOffer, setSelectedOffer] = useState(null); // Track selected offer
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -130,7 +131,59 @@ const Chatbot = () => {
       handleSend(input);
     }
   };
+  const handleButton = async (message) => {
+    // If message is not provided, use the current input state
+    const finalMessage = message || input;
 
+    if (finalMessage.trim() === "") return;
+
+    setInput(""); // Clear input if using direct message
+    setLoading(true); // Set loading state to true
+
+    try {
+      const response = await axios.post("/api/query", {
+        query: finalMessage,
+        user_id: "66096695",
+      });
+
+      if (response.status === 200 && response.data) {
+        const botResponse = response.data; // Assuming response.data contains the bot's response
+        const botTimestamp = new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+
+        // Add the bot's response to the state
+        setMessages((prev) => [
+          ...prev,
+          {
+            text: botResponse,
+            sender: "bot",
+            subData: "", // Can be filled with relevant bot data
+            time: botTimestamp,
+          },
+        ]);
+      } else {
+        throw new Error("Unexpected response structure");
+      }
+    } catch (error) {
+      console.error(error); // Log the error for debugging
+      setMessages((prev) => [
+        ...prev,
+        {
+          text: "Error: Could not get a response from the bot. Please try again later.",
+          sender: "bot",
+          subData: "", // Add subData for error message
+          time: new Date().toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+        },
+      ]);
+    } finally {
+      setLoading(false); // Reset loading state
+    }
+  };
   const handleOffer = (offerType) => {
     const offerTimestamp = new Date().toLocaleTimeString();
 
@@ -149,6 +202,7 @@ const Chatbot = () => {
       { text: botResponse, sender: "bot", time: botTimestamp, subData: "" }, // Corrected sender to 'bot'
     ]);
 
+    // Accordion messages for bot with subData
     const accordionMessages = [
       {
         subData: "Men's Fashions",
@@ -170,44 +224,110 @@ const Chatbot = () => {
       },
     ];
 
+    // Append accordion messages
     setMessages((prev) => [...prev, ...accordionMessages]);
 
     setSelectedOffer(offerType);
   };
 
-  const [config, setConfig] = useState(null);
-  const [error, setError] = useState(null);
+  const [config, setConfig] = useState({});
+  const [getUser, setGetUser] = useState({});
+
+  const chatContainerRef = useRef < HTMLDivElement > null;
+
+  const [selectedProduct, setSelectedProduct] =
+    (useState < any) | (null > null);
+  const [showChat, setShowChat] = useState(false);
 
   useEffect(() => {
-    // Fetch the chatbot configuration from the API
     const fetchConfig = async () => {
       try {
-        const response = await axiosInstance.get("/api/customize/xIrKTj3ump");
+        const website = window.location.ancestorOrigins[0]?.replace(
+          /^https?:\/\//,
+          ""
+        );
 
-        // Correct way to access the data in axios
+        // First API call to get user data
+        const response = await axiosInstance.get(
+          `/api/users/website/${website}`
+        );
         const data = response.data;
 
-        console.log(data, "data"); // Logging the correct data
-        setConfig(data); // Setting the configuration data
-      } catch (err) {
-        setError(err.message); // Setting the error state if something goes wrong
-        console.error("Error fetching config:", err); // Logging the error
+        console.log(data, "data");
+
+        if (data && data.userId) {
+          const userId = data.userId;
+          const customizeResponse = await axiosInstance.get(
+            `/api/customize/${userId}`
+          );
+          console.log(customizeResponse.data, "customize data");
+          const customizeData = customizeResponse.data;
+          setConfig(customizeData);
+        } else {
+          console.error("User ID not found in the data:", data);
+        }
+      } catch (error) {
+        console.error("Error fetching user or customization data:", error);
       }
     };
 
     fetchConfig();
   }, []);
 
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const appBridgeConfig = {
+          apiKey: process.env.NEXT_PUBLIC_SHOPIFY_API_KEY,
+          host: process.env.NEXT_PUBLIC_SHOPIFY_HOST,
+        };
+        const app = createApp(appBridgeConfig);
+        const sessionToken = await getSessionToken(app);
 
-  if (!config) {
-    return <div>Loading...</div>;
-  }
+        if (typeof sessionToken === "string" && sessionToken !== "") {
+          const decodedToken = jwtDecode(sessionToken);
+          const shopifyUserId = decodedToken.sub;
+          console.log(app, sessionToken, shopifyUserId);
+        } else {
+          console.error("Invalid session token:", sessionToken);
+        }
+      } catch (error) {
+        console.error("Error decoding session token:", error);
+      }
+    }
 
-  console.log(config);
+    // Call the async function
+    fetchData();
+  }, []);
+  const [isHovered, setIsHovered] = useState(false);
+  const [isHovered2, setIsHovered2] = useState(false);
+  const [isHovered3, setIsHovered3] = useState(false);
+  const [isHovered4, setIsHovered4] = useState(false);
+  const [isHovered5, setIsHovered5] = useState(false);
 
+  const [hoverStates, setHoverStates] = useState({});
+
+  const buttonData = [
+    { label: "Track my order", value: "track_my_order" },
+    { label: "Request, Return & Exchange", value: "request_return" },
+    { label: "Return & Refund Status", value: "return_status" },
+    { label: "Cancel Order", value: "cancel_order" },
+    { label: "Check warranty", value: "check_warranty" },
+  ];
+
+  const handleMouseEnter = (index) => {
+    setHoverStates((prev) => ({ ...prev, [index]: true }));
+  };
+
+  const handleMouseLeave = (index) => {
+    setHoverStates((prev) => ({ ...prev, [index]: false }));
+  };
+
+  const [showMore, setShowMore] = useState(false);
+  console.log(window.location.hostname, "Hostname");
+  console.log(window.location.ancestorOrigins[0], "Ancestor Origin");
+
+  console.log(window, config.chatbotTitle, "window");
   return (
     <div className="relative">
       {isOpen && (
